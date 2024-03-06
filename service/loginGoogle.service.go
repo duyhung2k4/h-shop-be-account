@@ -30,7 +30,7 @@ func (l *loginGoogleService) CheckExistUser(userCheck request.LoginGoogleRequest
 		return false, nil, err
 	}
 
-	if user != nil {
+	if user.ID != 0 {
 		return true, user, nil
 	}
 

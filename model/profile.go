@@ -16,9 +16,9 @@ type Profile struct {
 	Gender    *string    `json:"gender"`
 	Birth     *time.Time `json:"birth"`
 	Phone     *string    `json:"phone"`
-	Email     *string    `json:"email"`
+	Email     *string    `json:"email" gorm:"unique"`
 	Picture   *string    `json:"picture"`
-	Sub       *string    `json:"sub"`
+	Sub       *string    `json:"sub" gorm:"unique"`
 
 	User *User `json:"user" gorm:"foreignKey:UserID"`
 }

@@ -1,6 +1,7 @@
 package config
 
 import (
+	"github.com/go-chi/jwtauth/v5"
 	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
 )
@@ -15,4 +16,8 @@ func GetRDB() *redis.Client {
 
 func GetAppPort() string {
 	return appPort
+}
+
+func GetJWT() *jwtauth.JWTAuth {
+	return jwt
 }

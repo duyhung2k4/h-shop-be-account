@@ -18,5 +18,5 @@ func main() {
 		MaxHeaderBytes: 1 << 20,
 	}
 
-	log.Println(server.ListenAndServe())
+	log.Fatalln(server.ListenAndServe())
 }

@@ -43,7 +43,7 @@ func (a *accessController) LoginGoogle(w http.ResponseWriter, r *http.Request) {
 		mapData = map[string]interface{}{
 			"profile_id": user.Profile.ID,
 			"email":      user.Profile.Email,
-			"role":       user.Role.Code,
+			"role":       user.Profile.User.Role.Code,
 			"sub":        user.Profile.Sub,
 		}
 

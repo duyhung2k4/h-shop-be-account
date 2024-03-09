@@ -2,7 +2,6 @@ package main
 
 import (
 	"app/config"
-	_ "app/config"
 	"app/router"
 	"log"
 	"net/http"

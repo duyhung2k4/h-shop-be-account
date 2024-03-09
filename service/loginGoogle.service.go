@@ -24,7 +24,8 @@ func (l *loginGoogleService) CheckExistUser(userCheck request.LoginGoogleRequest
 	if err := l.db.
 		Model(&model.User{}).
 		Preload("Profile").
-		Preload("Role").
+		Preload("Profile.User").
+		Preload("Profile.User.Role").
 		Where("email = ?", userCheck.Email).
 		First(&user).Error; err != nil && err.Error() != "record not found" {
 		return false, nil, err

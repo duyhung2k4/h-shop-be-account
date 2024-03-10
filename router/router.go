@@ -30,6 +30,8 @@ func Router() http.Handler {
 	})
 	app.Use(cors.Handler)
 
+	middlewares := middlewares.NewMiddlewares()
+
 	accessController := controller.NewAccess()
 
 	app.Route("/account/api/v1", func(r chi.Router) {
@@ -41,6 +43,8 @@ func Router() http.Handler {
 			protected.Use(jwtauth.Verifier(config.GetJWT()))
 			protected.Use(jwtauth.Authenticator(config.GetJWT()))
 			protected.Use(middlewares.ValidateExpAccessToken())
+
+			protected.Post("/refresh-token", accessController.RefreshToken)
 		})
 	})
 

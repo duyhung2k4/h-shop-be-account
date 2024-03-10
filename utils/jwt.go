@@ -9,6 +9,7 @@ type jwtUtils struct{}
 
 type JwtUtils interface {
 	JwtEncode(data map[string]interface{}) (string, error)
+	JwtDecode(tokenString string) (map[string]interface{}, error)
 }
 
 func (j *jwtUtils) JwtEncode(data map[string]interface{}) (string, error) {
@@ -16,7 +17,7 @@ func (j *jwtUtils) JwtEncode(data map[string]interface{}) (string, error) {
 	return tokenString, err
 }
 
-func JwtDecode(tokenString string) (map[string]interface{}, error) {
+func (j *jwtUtils) JwtDecode(tokenString string) (map[string]interface{}, error) {
 	var dataMap map[string]interface{}
 	jwt, err := config.GetJWT().Decode(tokenString)
 	if err != nil {

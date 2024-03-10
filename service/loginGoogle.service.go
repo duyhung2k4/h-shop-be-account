@@ -16,6 +16,7 @@ type loginGoogleService struct {
 type LoginGoogleService interface {
 	CheckExistUser(userCheck request.LoginGoogleRequest) (bool, *model.User, error)
 	CreateProfile(userRequest request.LoginGoogleRequest, role model.ROLE) (*model.Profile, error)
+	GetProfile(profileId uint) (*model.Profile, error)
 }
 
 func (l *loginGoogleService) CheckExistUser(userCheck request.LoginGoogleRequest) (bool, *model.User, error) {
@@ -84,6 +85,21 @@ func (l *loginGoogleService) CreateProfile(userRequest request.LoginGoogleReques
 	}
 
 	return &newProfile, nil
+}
+
+func (l *loginGoogleService) GetProfile(profileId uint) (*model.Profile, error) {
+	var profile *model.Profile
+
+	if err := l.db.
+		Model(&model.Profile{}).
+		Preload("User").
+		Preload("User.Role").
+		Where("id = ?", profileId).
+		First(&profile).Error; err != nil {
+		return nil, err
+	}
+
+	return profile, nil
 }
 
 func NewGoginGoogleService() LoginGoogleService {

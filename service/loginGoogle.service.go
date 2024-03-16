@@ -62,12 +62,12 @@ func (l *loginGoogleService) CreateProfile(userRequest request.LoginGoogleReques
 
 		newProfile = model.Profile{
 			UserID:    newUser.ID,
-			Firstname: &userRequest.GivenName,
-			Lastname:  &userRequest.FamilyName,
-			Name:      &userRequest.Name,
-			Email:     &userRequest.Email,
-			Picture:   &userRequest.Picture,
-			Sub:       &userRequest.Sub,
+			Firstname: userRequest.GivenName,
+			Lastname:  userRequest.FamilyName,
+			Name:      userRequest.Name,
+			Email:     userRequest.Email,
+			Picture:   userRequest.Picture,
+			Sub:       userRequest.Sub,
 		}
 		if err := l.db.Model(&model.Profile{}).Create(&newProfile).Error; err != nil {
 			tx.Rollback()

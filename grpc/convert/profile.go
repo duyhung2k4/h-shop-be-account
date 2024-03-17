@@ -11,10 +11,10 @@ type convertProfileGRPC struct {
 }
 
 type ConvertProfileGRPC interface {
-	ConvertProfile(model.Profile) *proto.Profile
+	ConvertToGRPC(model.Profile) *proto.Profile
 }
 
-func (c *convertProfileGRPC) ConvertProfile(profile model.Profile) *proto.Profile {
+func (c *convertProfileGRPC) ConvertToGRPC(profile model.Profile) *proto.Profile {
 	return &proto.Profile{
 		ID:        uint64(profile.ID),
 		UserID:    uint64(profile.UserID),
@@ -28,7 +28,7 @@ func (c *convertProfileGRPC) ConvertProfile(profile model.Profile) *proto.Profil
 		Email:     profile.Email,
 		Picture:   profile.Picture,
 		Sub:       profile.Sub,
-		// User:      profile.User,
+
 		CreatedAt: timestamppb.New(profile.CreatedAt),
 		UpdatedAt: timestamppb.New(profile.UpdatedAt),
 		DeletedAt: timestamppb.New(profile.DeletedAt.Time),

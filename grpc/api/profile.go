@@ -13,6 +13,8 @@ import (
 type profileGRPC struct {
 	db             *gorm.DB
 	convertProfile convert.ConvertProfileGRPC
+	convertUser    convert.ConvertUser
+	convertRole    convert.ConvertRole
 	proto.UnsafeProfileServiceServer
 }
 
@@ -28,12 +30,18 @@ func (g *profileGRPC) GetProfile(ctx context.Context, pb *proto.GetProfileReq) (
 		return nil, err
 	}
 
-	return g.convertProfile.ConvertProfile(*profile), nil
+	profileGRPC := g.convertProfile.ConvertToGRPC(*profile)
+	profileGRPC.User = g.convertUser.ConvertToGRPC(*profile.User)
+	profileGRPC.User.Role = g.convertRole.ConvertToGRPC(*profile.User.Role)
+
+	return profileGRPC, nil
 }
 
 func NewProfileGRPC() proto.ProfileServiceServer {
 	return &profileGRPC{
 		db:             config.GetDB(),
 		convertProfile: convert.NewConvertProfileGRPC(),
+		convertUser:    convert.NewConvertUserGRPC(),
+		convertRole:    convert.NewConvertRoleGRPC(),
 	}
 }

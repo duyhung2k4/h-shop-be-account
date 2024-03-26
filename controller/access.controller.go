@@ -8,6 +8,7 @@ import (
 	"app/utils"
 	"context"
 	"encoding/json"
+	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -40,6 +41,7 @@ func (a *accessController) LoginGoogle(w http.ResponseWriter, r *http.Request) {
 	isExist, user, err := a.loginGoogleService.CheckExistUser(userRequest)
 
 	if err != nil {
+		log.Println("Error check exit user")
 		internalServerError(w, r, err)
 		return
 	}
@@ -59,6 +61,7 @@ func (a *accessController) LoginGoogle(w http.ResponseWriter, r *http.Request) {
 	} else {
 		profile, err := a.loginGoogleService.CreateProfile(userRequest, model.USER)
 		if err != nil {
+			log.Println("Error create profile")
 			internalServerError(w, r, err)
 			return
 		}
@@ -78,6 +81,7 @@ func (a *accessController) LoginGoogle(w http.ResponseWriter, r *http.Request) {
 	accessData["exp"] = time.Now().Add(3 * time.Hour).Unix()
 	accessToken, errAccessToken := a.jwtUtils.JwtEncode(accessData)
 	if errAccessToken != nil {
+		log.Println("Error create accessToken")
 		internalServerError(w, r, errAccessToken)
 		return
 	}
@@ -87,17 +91,20 @@ func (a *accessController) LoginGoogle(w http.ResponseWriter, r *http.Request) {
 	refreshData["exp"] = time.Now().Add(3 * 3 * time.Hour).Unix()
 	refreshToken, errRefreshToken := a.jwtUtils.JwtEncode(refreshData)
 	if errRefreshToken != nil {
+		log.Println("Error create refreshToken")
 		internalServerError(w, r, errRefreshToken)
 		return
 	}
 
 	errSetKeyAccessToken := a.rdb.Set(context.Background(), "access_token:"+strconv.Itoa(int(profileResponse.ID)), accessToken, 24*time.Hour).Err()
 	if errSetKeyAccessToken != nil {
+		log.Println("Error save accessToken")
 		internalServerError(w, r, errSetKeyAccessToken)
 		return
 	}
 	errSetKeyRefreshToken := a.rdb.Set(context.Background(), "refresh_token:"+strconv.Itoa(int(profileResponse.ID)), refreshToken, 3*24*time.Hour).Err()
 	if errSetKeyRefreshToken != nil {
+		log.Println("Error save refreshToken")
 		internalServerError(w, r, errSetKeyRefreshToken)
 		return
 	}

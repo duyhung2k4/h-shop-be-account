@@ -20,7 +20,16 @@ services:
     network_mode: host
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    depends_on:
+      - db
     ports:
       - "18881:18881"
     stdin_open: true
     tty: true
+  db:
+    image: postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "123456"

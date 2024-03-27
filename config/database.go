@@ -3,6 +3,7 @@ package config
 import (
 	"app/model"
 	"fmt"
+	"log"
 
 	"github.com/redis/go-redis/v9"
 	"gorm.io/driver/postgres"
@@ -15,6 +16,8 @@ func connectPostgresql(migrate bool) error {
 		"host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
 		dbHost, dbUser, dbPassword, dbName, dbPort,
 	)
+
+	log.Println("Connecting...")
 
 	db, err = gorm.Open(postgres.Open(dns), &gorm.Config{})
 	if err != nil {
@@ -31,6 +34,8 @@ func connectPostgresql(migrate bool) error {
 			return errMigrate
 		}
 	}
+
+	log.Println("Connect postgres successfully!")
 
 	return nil
 }

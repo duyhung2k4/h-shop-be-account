@@ -14,6 +14,7 @@ const (
 	DB_PASSWORD = "DB_PASSWORD"
 	DB_USER     = "DB_USER"
 	URL_REDIS   = "URL_REDIS"
+	HOST        = "HOST"
 )
 
 var (
@@ -24,6 +25,7 @@ var (
 	dbPassword string
 	dbUser     string
 	urlRedis   string
+	host       string
 
 	db  *gorm.DB
 	rdb *redis.Client

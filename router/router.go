@@ -4,6 +4,7 @@ import (
 	"app/config"
 	"app/controller"
 	"app/middlewares"
+	"log"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -47,6 +48,8 @@ func Router() http.Handler {
 			protected.Post("/refresh-token", accessController.RefreshToken)
 		})
 	})
+
+	log.Println("Sevice h-shop-be-account starting success!")
 
 	return app
 }

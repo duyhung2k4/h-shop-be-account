@@ -21,6 +21,7 @@ func loadEnv() error {
 	dbPassword = os.Getenv(DB_PASSWORD)
 	dbUser = os.Getenv(DB_USER)
 	urlRedis = os.Getenv(URL_REDIS)
+	host = os.Getenv(HOST)
 
 	return nil
 }

@@ -21,3 +21,7 @@ func GetAppPort() string {
 func GetJWT() *jwtauth.JWTAuth {
 	return jwt
 }
+
+func GetHost() string {
+	return host
+}

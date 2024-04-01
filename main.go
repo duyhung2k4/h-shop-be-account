@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 )
 
 func main() {
@@ -21,7 +22,16 @@ func main() {
 			log.Fatalln(listenerGRPC)
 		}
 
-		grpcServer := grpc.NewServer()
+		creds, errKey := credentials.NewServerTLSFromFile(
+			"keys/server-account/public.pem",
+			"keys/server-account/private.pem",
+		)
+
+		if errKey != nil {
+			log.Fatalln(errKey)
+		}
+
+		grpcServer := grpc.NewServer(grpc.Creds(creds))
 		proto.RegisterProfileServiceServer(grpcServer, api.NewProfileGRPC())
 		log.Fatalln(grpcServer.Serve(listenerGRPC))
 	}()

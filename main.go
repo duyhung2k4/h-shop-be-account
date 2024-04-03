@@ -2,47 +2,33 @@ package main
 
 import (
 	"app/config"
-	"app/grpc/api"
-	"app/grpc/proto"
+	"app/grpc"
 	"app/router"
 	"log"
-	"net"
 	"net/http"
+	"sync"
 	"time"
-
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials"
 )
 
 func main() {
+	var wg sync.WaitGroup
+	wg.Add(2)
 	go func() {
-		listenerGRPC, err := net.Listen("tcp", ":20001")
-
-		if err != nil {
-			log.Fatalln(listenerGRPC)
-		}
-
-		creds, errKey := credentials.NewServerTLSFromFile(
-			"keys/server-account/public.pem",
-			"keys/server-account/private.pem",
-		)
-
-		if errKey != nil {
-			log.Fatalln(errKey)
-		}
-
-		grpcServer := grpc.NewServer(grpc.Creds(creds))
-		proto.RegisterProfileServiceServer(grpcServer, api.NewProfileGRPC())
-		log.Fatalln(grpcServer.Serve(listenerGRPC))
+		grpc.RunServerGRPC()
+		wg.Done()
 	}()
 
-	server := http.Server{
-		Addr:           ":" + config.GetAppPort(),
-		Handler:        router.Router(),
-		ReadTimeout:    10 * time.Second,
-		WriteTimeout:   10 * time.Second,
-		MaxHeaderBytes: 1 << 20,
-	}
+	go func() {
+		server := http.Server{
+			Addr:           ":" + config.GetAppPort(),
+			Handler:        router.Router(),
+			ReadTimeout:    10 * time.Second,
+			WriteTimeout:   10 * time.Second,
+			MaxHeaderBytes: 1 << 20,
+		}
 
-	log.Fatalln(server.ListenAndServe())
+		log.Fatalln(server.ListenAndServe())
+		wg.Done()
+	}()
+	wg.Wait()
 }

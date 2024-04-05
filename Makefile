@@ -14,3 +14,5 @@ gen_key:
 		-keyout keys/server-account/private.pem \
 		-out keys/server-account/public.pem \
 		-config keys/server-account/san.cfg
+export_path:
+	export PATH=$PATH:$(go env GOPATH)/bin

@@ -3,8 +3,6 @@ package convert
 import (
 	"app/grpc/proto"
 	"app/model"
-
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 type convertUser struct{}
@@ -21,9 +19,9 @@ func (c *convertUser) ConvertToGRPC(user model.User) *proto.User {
 		Password: user.Password,
 		Email:    user.Email,
 
-		CreatedAt: timestamppb.New(user.CreatedAt),
-		UpdatedAt: timestamppb.New(user.UpdatedAt),
-		DeletedAt: timestamppb.New(user.DeletedAt.Time),
+		CreatedAt: user.CreatedAt.Unix(),
+		UpdatedAt: user.UpdatedAt.Unix(),
+		DeletedAt: user.DeletedAt.Time.Unix(),
 	}
 }
 

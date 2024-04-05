@@ -3,8 +3,6 @@ package convert
 import (
 	"app/grpc/proto"
 	"app/model"
-
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 type convertProfileGRPC struct {
@@ -23,15 +21,15 @@ func (c *convertProfileGRPC) ConvertToGRPC(profile model.Profile) *proto.Profile
 		Name:      profile.Name,
 		Address:   profile.Address,
 		Gender:    profile.Gender,
-		Birth:     timestamppb.New(profile.Birth),
+		Birth:     profile.Birth.Unix(),
 		Phone:     profile.Phone,
 		Email:     profile.Email,
 		Picture:   profile.Picture,
 		Sub:       profile.Sub,
 
-		CreatedAt: timestamppb.New(profile.CreatedAt),
-		UpdatedAt: timestamppb.New(profile.UpdatedAt),
-		DeletedAt: timestamppb.New(profile.DeletedAt.Time),
+		CreatedAt: profile.CreatedAt.Unix(),
+		UpdatedAt: profile.UpdatedAt.Unix(),
+		DeletedAt: profile.DeletedAt.Time.Unix(),
 	}
 }
 

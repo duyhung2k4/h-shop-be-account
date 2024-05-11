@@ -5,7 +5,6 @@ import (
 	"app/utils"
 	"context"
 	"errors"
-	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -33,8 +32,6 @@ func (m *middlewares) ValidateExpAccessToken() func(http.Handler) http.Handler {
 				authServerError(w, r, errMapData)
 				return
 			}
-
-			log.Println(mapData)
 
 			exp := mapData["exp"].(time.Time)
 

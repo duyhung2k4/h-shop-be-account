@@ -59,7 +59,7 @@ func (a *accessController) LoginGoogle(w http.ResponseWriter, r *http.Request) {
 
 		profileResponse = *user.Profile
 	} else {
-		profile, err := a.loginGoogleService.CreateProfile(userRequest, model.USER)
+		profile, err := a.loginGoogleService.CreateProfile(userRequest)
 		if err != nil {
 			log.Println("Error create profile")
 			internalServerError(w, r, err)

@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package proto;
+
+option go_package = "grpc/proto";
+
+message CheckShopPermissionReq {
+    uint64 shopId = 1;
+    uint64 profileId = 2;
+}
+message CheckShopPermissionRes {
+    bool isPermission = 1;
+}
+
+message CreateShopReq {
+    uint64 profileId = 1;
+}
+message CreateShopRes {
+    uint64 id = 1;
+    uint64 profileId = 2;
+}
+
+service ShopService {
+    rpc CheckShopPermission(CheckShopPermissionReq) returns (CheckShopPermissionRes) {}
+    rpc CreateShop(CreateShopReq) returns (CreateShopRes) {}
+}

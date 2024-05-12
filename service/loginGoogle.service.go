@@ -3,26 +3,29 @@ package service
 import (
 	"app/config"
 	"app/dto/request"
+	"app/grpc/proto"
 	"app/model"
+	"context"
 	"errors"
 
 	"gorm.io/gorm"
 )
 
 type loginGoogleService struct {
-	db *gorm.DB
+	db             *gorm.DB
+	clientShopGRPC proto.ShopServiceClient
 }
 
 type LoginGoogleService interface {
 	CheckExistUser(userCheck request.LoginGoogleRequest) (bool, *model.User, error)
-	CreateProfile(userRequest request.LoginGoogleRequest, role model.ROLE) (*model.Profile, error)
+	CreateProfile(userRequest request.LoginGoogleRequest) (*model.Profile, error)
 	GetProfile(profileId uint) (*model.Profile, error)
 }
 
-func (l *loginGoogleService) CheckExistUser(userCheck request.LoginGoogleRequest) (bool, *model.User, error) {
+func (s *loginGoogleService) CheckExistUser(userCheck request.LoginGoogleRequest) (bool, *model.User, error) {
 	var user *model.User
 
-	if err := l.db.
+	if err := s.db.
 		Model(&model.User{}).
 		Preload("Profile").
 		Preload("Profile.User").
@@ -39,12 +42,12 @@ func (l *loginGoogleService) CheckExistUser(userCheck request.LoginGoogleRequest
 	return false, nil, nil
 }
 
-func (l *loginGoogleService) CreateProfile(userRequest request.LoginGoogleRequest, role model.ROLE) (*model.Profile, error) {
+func (s *loginGoogleService) CreateProfile(userRequest request.LoginGoogleRequest) (*model.Profile, error) {
 	var newProfile model.Profile
 
-	err := l.db.Transaction(func(tx *gorm.DB) error {
+	err := s.db.Transaction(func(tx *gorm.DB) error {
 		var getRole *model.Role
-		if err := l.db.Model(&model.Role{}).Where("Code = ?", role).First(&getRole).Error; err != nil && err.Error() != "record not found" {
+		if err := s.db.Model(&model.Role{}).Where("Code = ?", userRequest.Role).First(&getRole).Error; err != nil && err.Error() != "record not found" {
 			return err
 		}
 		if getRole == nil {
@@ -55,7 +58,7 @@ func (l *loginGoogleService) CreateProfile(userRequest request.LoginGoogleReques
 			RoleID: getRole.ID,
 			Email:  userRequest.Email,
 		}
-		if err := l.db.Model(&model.User{}).Create(&newUser).Error; err != nil {
+		if err := s.db.Model(&model.User{}).Create(&newUser).Error; err != nil {
 			tx.Rollback()
 			return err
 		}
@@ -69,7 +72,7 @@ func (l *loginGoogleService) CreateProfile(userRequest request.LoginGoogleReques
 			Picture:   userRequest.Picture,
 			Sub:       userRequest.Sub,
 		}
-		if err := l.db.Model(&model.Profile{}).Create(&newProfile).Error; err != nil {
+		if err := s.db.Model(&model.Profile{}).Create(&newProfile).Error; err != nil {
 			tx.Rollback()
 			return err
 		}
@@ -84,13 +87,24 @@ func (l *loginGoogleService) CreateProfile(userRequest request.LoginGoogleReques
 		return nil, err
 	}
 
+	var errHandlerGRPC error
+	switch role := userRequest.Role; role {
+	case model.OWNER_SHOP:
+		_, err := s.clientShopGRPC.CreateShop(context.Background(), &proto.CreateShopReq{ProfileId: uint64(newProfile.ID)})
+		errHandlerGRPC = err
+	}
+
+	if errHandlerGRPC != nil {
+		return nil, err
+	}
+
 	return &newProfile, nil
 }
 
-func (l *loginGoogleService) GetProfile(profileId uint) (*model.Profile, error) {
+func (s *loginGoogleService) GetProfile(profileId uint) (*model.Profile, error) {
 	var profile *model.Profile
 
-	if err := l.db.
+	if err := s.db.
 		Model(&model.Profile{}).
 		Preload("User").
 		Preload("User.Role").
@@ -104,6 +118,7 @@ func (l *loginGoogleService) GetProfile(profileId uint) (*model.Profile, error) 
 
 func NewGoginGoogleService() LoginGoogleService {
 	return &loginGoogleService{
-		db: config.GetDB(),
+		db:             config.GetDB(),
+		clientShopGRPC: proto.NewShopServiceClient(config.GetClientGRPCShop()),
 	}
 }

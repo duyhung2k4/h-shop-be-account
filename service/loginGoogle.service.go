@@ -24,16 +24,24 @@ type LoginGoogleService interface {
 
 func (s *loginGoogleService) CheckExistUser(userCheck request.LoginGoogleRequest) (bool, *model.User, error) {
 	var user *model.User
+	var role *model.Role
 
-	if err := s.db.
-		Model(&model.User{}).
-		Preload("Profile").
-		Preload("Profile.User").
-		Preload("Profile.User.Role").
-		Where("email = ?", userCheck.Email).
-		First(&user).Error; err != nil && err.Error() != "record not found" {
-		return false, nil, err
-	}
+	s.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Model(&model.Role{}).Where("code = ?", userCheck.Role).Find(&role).Error; err != nil {
+			return err
+		}
+
+		if err := tx.
+			Model(&model.User{}).
+			Preload("Profile").
+			Preload("Profile.User").
+			Preload("Profile.User.Role").
+			Where("email = ? AND role_id = ?", userCheck.Email, role.ID).
+			First(&user).Error; err != nil && err.Error() != "record not found" {
+			return nil
+		}
+		return nil
+	})
 
 	if user.ID != 0 {
 		return true, user, nil

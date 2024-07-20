@@ -37,6 +37,7 @@ func Router() http.Handler {
 
 	app.Route("/account/api/v1", func(r chi.Router) {
 		r.Route("/public", func(public chi.Router) {
+			public.Get("/profile", accessController.GetProfile)
 			public.Post("/login-google", accessController.LoginGoogle)
 		})
 

@@ -29,6 +29,7 @@ type accessController struct {
 type AccessController interface {
 	LoginGoogle(w http.ResponseWriter, r *http.Request)
 	RefreshToken(w http.ResponseWriter, r *http.Request)
+	GetProfile(w http.ResponseWriter, r *http.Request)
 }
 
 func (a *accessController) LoginGoogle(w http.ResponseWriter, r *http.Request) {
@@ -182,6 +183,32 @@ func (a *accessController) RefreshToken(w http.ResponseWriter, r *http.Request) 
 
 	render.JSON(w, r, res)
 
+}
+
+func (c *accessController) GetProfile(w http.ResponseWriter, r *http.Request) {
+	params := r.URL.Query()
+	profileIdString := params.Get("id")
+	profileId, errProfileId := strconv.Atoi(profileIdString)
+
+	if errProfileId != nil {
+		badRequest(w, r, errProfileId)
+		return
+	}
+
+	profile, err := c.loginGoogleService.GetPublicProfile(uint(profileId))
+	if err != nil {
+		internalServerError(w, r, err)
+		return
+	}
+
+	res := Response{
+		Data:    profile,
+		Message: "OK",
+		Status:  200,
+		Error:   nil,
+	}
+
+	render.JSON(w, r, res)
 }
 
 func NewAccess() AccessController {

@@ -20,6 +20,7 @@ type LoginGoogleService interface {
 	CheckExistUser(userCheck request.LoginGoogleRequest) (bool, *model.User, error)
 	CreateProfile(userRequest request.LoginGoogleRequest) (*model.Profile, error)
 	GetProfile(profileId uint) (*model.Profile, error)
+	GetPublicProfile(profileId uint) (*model.Profile, error)
 }
 
 func (s *loginGoogleService) CheckExistUser(userCheck request.LoginGoogleRequest) (bool, *model.User, error) {
@@ -116,6 +117,19 @@ func (s *loginGoogleService) GetProfile(profileId uint) (*model.Profile, error) 
 		Model(&model.Profile{}).
 		Preload("User").
 		Preload("User.Role").
+		Where("id = ?", profileId).
+		First(&profile).Error; err != nil {
+		return nil, err
+	}
+
+	return profile, nil
+}
+
+func (s *loginGoogleService) GetPublicProfile(profileId uint) (*model.Profile, error) {
+	var profile *model.Profile
+
+	if err := s.db.
+		Model(&model.Profile{}).
 		Where("id = ?", profileId).
 		First(&profile).Error; err != nil {
 		return nil, err

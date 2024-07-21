@@ -47,6 +47,7 @@ func Router() http.Handler {
 			protected.Use(middlewares.ValidateExpAccessToken())
 
 			protected.Post("/refresh-token", accessController.RefreshToken)
+			protected.Post("/update-profile", accessController.UpdateProfile)
 		})
 	})
 

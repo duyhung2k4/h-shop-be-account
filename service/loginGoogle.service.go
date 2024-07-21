@@ -21,6 +21,7 @@ type LoginGoogleService interface {
 	CreateProfile(userRequest request.LoginGoogleRequest) (*model.Profile, error)
 	GetProfile(profileId uint) (*model.Profile, error)
 	GetPublicProfile(profileId uint) (*model.Profile, error)
+	UpdateProfile(profile *model.Profile) (*model.Profile, error)
 }
 
 func (s *loginGoogleService) CheckExistUser(userCheck request.LoginGoogleRequest) (bool, *model.User, error) {
@@ -136,6 +137,16 @@ func (s *loginGoogleService) GetPublicProfile(profileId uint) (*model.Profile, e
 	}
 
 	return profile, nil
+}
+
+func (s *loginGoogleService) UpdateProfile(profile *model.Profile) (*model.Profile, error) {
+	var newProfile *model.Profile = profile
+
+	if err := s.db.Model(&model.Profile{}).Where("id = ?", profile.ID).Updates(&newProfile).Error; err != nil {
+		return nil, err
+	}
+
+	return newProfile, nil
 }
 
 func NewGoginGoogleService() LoginGoogleService {

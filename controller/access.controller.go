@@ -30,6 +30,7 @@ type AccessController interface {
 	LoginGoogle(w http.ResponseWriter, r *http.Request)
 	RefreshToken(w http.ResponseWriter, r *http.Request)
 	GetProfile(w http.ResponseWriter, r *http.Request)
+	UpdateProfile(w http.ResponseWriter, r *http.Request)
 }
 
 func (a *accessController) LoginGoogle(w http.ResponseWriter, r *http.Request) {
@@ -203,6 +204,29 @@ func (c *accessController) GetProfile(w http.ResponseWriter, r *http.Request) {
 
 	res := Response{
 		Data:    profile,
+		Message: "OK",
+		Status:  200,
+		Error:   nil,
+	}
+
+	render.JSON(w, r, res)
+}
+
+func (c *accessController) UpdateProfile(w http.ResponseWriter, r *http.Request) {
+	var payload *model.Profile
+	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+		badRequest(w, r, err)
+		return
+	}
+
+	result, err := c.loginGoogleService.UpdateProfile(payload)
+	if err != nil {
+		internalServerError(w, r, err)
+		return
+	}
+
+	res := Response{
+		Data:    result,
 		Message: "OK",
 		Status:  200,
 		Error:   nil,
